@@ -61,6 +61,23 @@ func (this *User) DoMessage(msg string) {
 			}
 		}
 		this.server.mapLock.Unlock()
+	} else if len(msg) > 7 && msg[:7] == "rename|" {
+		//消息格式：rename|章三
+		// newName := strings.Split(msg,"|")[1]
+		newName := msg[7:]
+		//判断当前登陆用户是否存在
+		_, ok := this.server.OnlineMap[newName]
+		if ok {
+			this.SendMsg("当前用户名被登陆\n")
+		} else {
+			this.server.mapLock.Lock()
+			delete(this.server.OnlineMap, this.Name)
+			this.server.OnlineMap[newName] = this
+			this.server.mapLock.Unlock()
+
+			this.Name = newName
+			this.SendMsg("用户名已更新为" + this.Name + "\n")
+		}
 	} else {
 		this.server.BroadCast(this, msg)
 	}
