@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"runtime"
 	"sync"
+	"time"
 )
 
 //定义Server结构体
@@ -36,6 +38,9 @@ func (this *Server) Handler(conn net.Conn) {
 
 	user.Online()
 
+	//监听用户是否活跃
+	isLive := make(chan bool)
+
 	//接受客户端发送的消息
 	go func() {
 		buf := make([]byte, 4096)
@@ -55,11 +60,33 @@ func (this *Server) Handler(conn net.Conn) {
 			// this.BroadCast(user, msg)
 			user.DoMessage(msg)
 
+			//用户发了消息，就代表活跃
+			isLive <- true
+
 		}
 	}()
 
 	//当前handler阻塞
-	select {}
+	// select {}
+	//添加超时强踢功能，使用定时器重置上线
+	for {
+		select {
+		case <-isLive:
+			//当前用户活跃，重置定时器
+			//不做任何处理，为了激活select，更新下面的定时器
+		case <-time.After(time.Second * 10):
+			//说明超时了 将当前User强退
+			// delete(this.OnlineMap, user)
+			user.SendMsg("您已超时离线")
+			//销毁用户资源
+			close(user.C)
+			//关闭链接
+			conn.Close()
+			//退出当前handler
+			//return
+			runtime.Goexit()
+		}
+	}
 }
 
 //广播消息方法
