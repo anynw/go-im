@@ -32,13 +32,9 @@ func NewServer(ip string, port int) *Server {
 //处理业务
 func (this *Server) Handler(conn net.Conn) {
 	// fmt.Println("链接已成功")
-	user := NewUser(conn)
-	//用户上线，将用户加入到OnlineMap中
-	this.mapLock.Lock()
-	this.OnlineMap[user.Name] = user
-	this.mapLock.Unlock()
-	//广播当前用户上线消息
-	this.BroadCast(user, "上线了")
+	user := NewUser(conn, this)
+
+	user.Online()
 
 	//接受客户端发送的消息
 	go func() {
@@ -46,7 +42,8 @@ func (this *Server) Handler(conn net.Conn) {
 		for {
 			n, err := conn.Read(buf)
 			if n == 0 {
-				this.BroadCast(user, "已下线")
+				// this.BroadCast(user, "已下线")
+				user.Offline()
 				return
 			}
 			if err != nil && err != io.EOF {
@@ -55,7 +52,9 @@ func (this *Server) Handler(conn net.Conn) {
 
 			msg := string(buf[:n-1])
 			//广播
-			this.BroadCast(user, msg)
+			// this.BroadCast(user, msg)
+			user.DoMessage(msg)
+
 		}
 	}()
 
