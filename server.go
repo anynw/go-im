@@ -74,7 +74,7 @@ func (this *Server) Handler(conn net.Conn) {
 		case <-isLive:
 			//当前用户活跃，重置定时器
 			//不做任何处理，为了激活select，更新下面的定时器
-		case <-time.After(time.Second * 10):
+		case <-time.After(time.Second * 300):
 			//说明超时了 将当前User强退
 			// delete(this.OnlineMap, user)
 			user.SendMsg("您已超时离线")

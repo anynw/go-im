@@ -2,6 +2,7 @@ package main
 
 import (
 	"net"
+	"strings"
 )
 
 type User struct {
@@ -78,7 +79,27 @@ func (this *User) DoMessage(msg string) {
 			this.Name = newName
 			this.SendMsg("用户名已更新为" + this.Name + "\n")
 		}
+	} else if len(msg) > 4 && msg[:3] == "to|" {
+		//私聊功能 消息格式：to|Name|msg
+		//1.获取对方的用户名
+		//2.根据用户名 得到对方的User对象
+		//3.获取消息内容，发送过去
+		remoteName := strings.Split(msg, "|")[1]
+		remoteUser, ok := this.server.OnlineMap[remoteName]
+		if !ok {
+			this.SendMsg("该用户名不存在")
+			return
+		}
+		content := strings.Split(msg, "|")[2]
+		if content == "" {
+			this.SendMsg("无消息内容，请重发\n")
+			return
+		}
+
+		remoteUser.SendMsg(this.Name + "对您说:" + content)
+
 	} else {
+
 		this.server.BroadCast(this, msg)
 	}
 }
