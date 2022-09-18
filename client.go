@@ -22,8 +22,9 @@ func NewClient(serverIp string, serverPort int) *Client {
 		flag:       999,
 	}
 	//2.链接服务器
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s%d", serverIp, serverPort))
-	if err == nil {
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", serverIp, serverPort))
+	fmt.Println("client conn sucess：", conn)
+	if err != nil {
 		fmt.Println("net dial err:", err)
 		return nil
 	}

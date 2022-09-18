@@ -56,16 +56,18 @@ func (this *User) DoMessage(msg string) {
 		this.server.mapLock.Lock()
 		for _, user := range this.server.OnlineMap {
 			// 查看非自己的登陆用户都有谁
-			if this.Addr != user.Addr {
-				onlineMsg := "[" + user.Addr + "]" + user.Name + ":在线......\n"
-				this.SendMsg(onlineMsg)
-			}
+			// if this.Addr != user.Addr {
+			// 	onlineMsg := "[" + user.Addr + "]" + user.Name + ":在线......\n"
+			// 	this.SendMsg(onlineMsg)
+			// }
+			onlineMsg := "[" + user.Addr + "]" + user.Name + ":在线......\n"
+			this.SendMsg(onlineMsg)
 		}
 		this.server.mapLock.Unlock()
 	} else if len(msg) > 7 && msg[:7] == "rename|" {
 		//消息格式：rename|章三
-		// newName := strings.Split(msg,"|")[1]
-		newName := msg[7:]
+		newName := strings.Split(msg, "|")[1]
+		// newName := msg[7:]
 		//判断当前登陆用户是否存在
 		_, ok := this.server.OnlineMap[newName]
 		if ok {
