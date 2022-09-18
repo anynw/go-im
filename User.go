@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"strings"
 )
@@ -93,6 +94,7 @@ func (this *User) DoMessage(msg string) {
 			return
 		}
 		content := strings.Split(msg, "|")[2]
+		fmt.Println("content：", content)
 		if content == "" {
 			this.SendMsg("无消息内容，请重发\n")
 			return
